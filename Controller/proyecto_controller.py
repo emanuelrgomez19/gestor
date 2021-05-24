@@ -31,11 +31,11 @@ def getProyecto():
 
 @proyecto_api.route('/proyecto', methods=['POST'])
 def nuevoProyecto():
-  nombre = request.json['nombre']
-  estado = request.json['estado']
-  descripcion = request.json['descripcion']
+  nuevoProyecto = request.get_json().get('body')
+  nombre = nuevoProyecto['nombre']
+  estado = nuevoProyecto['estado']
+  descripcion = nuevoProyecto['descripcion']
   proyecto = Proyecto(nombre = nombre,estado=estado,descripcion=descripcion)
-  print(proyecto)
   s = get_db_session()
   s.add(proyecto)
   s.commit()
