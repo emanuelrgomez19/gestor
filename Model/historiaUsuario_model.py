@@ -9,11 +9,12 @@ class Historia(Base,ToDict):
  id = Column(Integer, primary_key=True)
  titulo = Column(String(100))
  criterio_aceptacion = Column(String(1000))
-#  id_descripcion = Column(Integer,ForeignKey('DESCRIPCION.id'))
+ como = Column(String(1000))
+ quiero = Column(String(1000))
+ para = Column(String(1000))
  id_proyecto  = Column(Integer,ForeignKey('PROYECTO.id'))
-# id_escenario = Column(Integer,ForeignKey('ESCENARIO_HISTORIA.id'))
+#id_escenario = Column(Integer,ForeignKey('ESCENARIO_HISTORIA.id'))
  
-
 
 def __init__(self, titulo ,criterio_aceptacion):
  self.titulo = titulo

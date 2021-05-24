@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String , ForeignKey  , Float
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.sql.sqltypes import Boolean
 from webargs.core import T
 from database import Base

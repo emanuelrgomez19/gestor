@@ -1,10 +1,6 @@
 from flask import Flask, request, json, Response
 from Utils.utils import ToDict
 from flask_cors import CORS
-
-
-
-
 from database import setup_database
 
 from Controller.user_controller import user_api

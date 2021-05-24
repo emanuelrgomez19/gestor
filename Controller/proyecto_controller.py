@@ -6,8 +6,6 @@ from database import get_db_session
 from webargs import fields, validate
 from webargs.flaskparser import use_args
 from sqlalchemy.orm.exc import NoResultFound
-from flask_cors import cross_origin
-
 
 from database import get_db_session
 
@@ -18,7 +16,6 @@ create_proyecto_request = {
   "nombre": fields.Str(required=True, validate=validate.Length(min=1)),
   "estado": fields.Boolean()
 }
-
 
 
 @proyecto_api.route('/proyectos',methods=['GET'])
