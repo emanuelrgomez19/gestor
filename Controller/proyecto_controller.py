@@ -6,6 +6,8 @@ from database import get_db_session
 from webargs import fields, validate
 from webargs.flaskparser import use_args
 from sqlalchemy.orm.exc import NoResultFound
+from flask_cors import cross_origin
+
 
 from database import get_db_session
 
@@ -24,11 +26,7 @@ def getProyecto():
   s = get_db_session()
   proyecto = s.query(Proyecto)
   proyectojson=json.dumps([u.to_dict() for u in proyecto])
-  return Response(proyectojson, status=200, mimetype='application/json',headers= {
-            "Access-Control-Allow-Headers" : "Content-Type",
-            "Access-Control-Allow-Origin": "https://www.example.com",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
-        }, )
+  return Response(proyectojson, status=200, mimetype='application/json')
 
 
 @proyecto_api.route('/proyecto', methods=['POST'])

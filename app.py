@@ -1,5 +1,9 @@
 from flask import Flask, request, json, Response
 from Utils.utils import ToDict
+from flask_cors import CORS
+
+
+
 
 from database import setup_database
 
@@ -9,6 +13,8 @@ from Controller.historia_controller import historia_api
 from Controller.escenario_controller import escenario_api
 
 app = Flask(__name__)
+CORS(app)
+
 app.debug = True
 
 app.register_blueprint(user_api)
