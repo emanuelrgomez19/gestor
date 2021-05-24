@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String , ForeignKey  , Float
+from sqlalchemy import Column, Integer, String , ForeignKey  , Float , Boolean
 from webargs.core import T
 from database import Base
 from Utils.utils import ToDict
@@ -13,6 +13,8 @@ class Historia(Base,ToDict):
  quiero = Column(String(1000))
  para = Column(String(1000))
  id_proyecto  = Column(Integer,ForeignKey('PROYECTO.id'))
+ estado = Column(Boolean(True))
+ 
 #id_escenario = Column(Integer,ForeignKey('ESCENARIO_HISTORIA.id'))
  
 

@@ -1,5 +1,5 @@
 
-from sqlalchemy import Column, Integer, String , ForeignKey  , Float
+from sqlalchemy import Column, Integer, String , Boolean  , Float
 from database import Base
 from Utils.utils import ToDict
 
@@ -9,6 +9,8 @@ class User(Base, ToDict):
   username = Column(String)
   firstname = Column(String)
   lastname = Column(String)
+  estado = Column(Boolean(True))
+
 
   def __init__(self, username, firstname, lastname):
     self.username = username
