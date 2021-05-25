@@ -13,6 +13,9 @@ historia_api = Blueprint('historia_api', __name__)
 
 create_historia_request = {
   "titulo": fields.Str(required=True, validate=validate.Length(min=1)),
+  "como":fields.Str(required=True, validate=validate.Length(min=1)),
+  "quiero":fields.Str(required=True, validate=validate.Length(min=1)),
+  "para":fields.Str(required=True, validate=validate.Length(min=1)),
   "criterio_aceptacion": fields.Str(required=False, validate=validate.Length(min=1)),
   "id_proyecto": fields.Int(requiere=True)
 }
@@ -28,12 +31,15 @@ def getHistoria():
 
 @historia_api.route('/historia', methods=['POST'])
 def nuevoHistoria():
-  titulo = request.json['titulo']
-  criterio_aceptacion = request.json['criterio_aceptacion']
-  id_proyecto = request.json['id_proyecto']
-  historia = Historia(titulo = titulo, criterio_aceptacion = criterio_aceptacion,id_proyecto=id_proyecto)
-  print(historia)
+  nuevaHistoria = request.get_json().get('body')
+  titulo = nuevaHistoria['titulo']
+  como = nuevaHistoria['como']
+  quiero = nuevaHistoria['quiero']
+  para = nuevaHistoria['para']
+  criterio_aceptacion = nuevaHistoria['criterio_aceptacion']
+  id_proyecto=nuevaHistoria['id_proyecto']
+  historia = Historia(titulo = titulo,como=como,quiero=quiero,para=para,criterio_aceptacion=criterio_aceptacion,id_proyecto=id_proyecto)
   s = get_db_session()
   s.add(historia)
   s.commit()
-  return Response('Historia created', 201)
+  return Response("Historia " + titulo + " created", 201)
