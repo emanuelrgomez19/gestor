@@ -31,35 +31,64 @@ def handle_error(err):
     else:
         return jsonify({"errors": messages}), err.code
 
-@user_api.route('/user')
+@user_api.route('/user/<int:id>',methods=['GET'])
+def getUsuario(id):
+  s = get_db_session()
+  user = s.query(User).filter(User.estado==True).filter(User.id==id).one_or_none()
+  if user != None:
+    return Response(json.dumps(user.to_dict()), status=200, mimetype='application/json')
+  return Response('Id inexistente en la base de datos', status=404)
+
+@user_api.route('/user',methods=['GET'])
 def list_user():
   s = get_db_session()
-  users = s.query(User)
-  return Response(json.dumps([u.to_dict() for u in users]), status=200, mimetype='application/json')
-
-@user_api.route('/user/<id>')
-def get_user(id):
-  s = get_db_session()
-  try:
-    user = s.query(User).filter_by(id=id).one()
-    return Response(json.dumps(user.to_dict()), status=200, mimetype='application/json')
-  except NoResultFound:
-    return Response("User does not exist", 404)
-  return Response('User returned', 201)
+  users = s.query(User).filter(User.estado==True)
+  usersjson=json.dumps([u.to_dict() for u in users])
+  return Response(usersjson, status=200, mimetype='application/json')
 
 @user_api.route('/user', methods=['POST'])
-@use_args(create_user_request)
-def create_user(args, location="form"):
-  user = User(args["username"], args["firstname"], args["lastname"])
+def nuevoUser():
+  nuevoUser = request.get_json()#.get('body')
+  username = nuevoUser['username']
+  firstname = nuevoUser['firstname']
+  lastname = nuevoUser['lastname']
+  estado = nuevoUser['estado']
+  user = User(username=username, firstname=firstname, lastname=lastname, estado=estado)
   s = get_db_session()
   s.add(user)
   s.commit()
-  return Response('User created', 201)
+  return Response(json.dumps(user.to_dict()), status=201, mimetype='application/json')
 
-@user_api.route('/ciudades')
-def usuarios():
+@user_api.route('/user/<int:id>', methods=['DELETE'])
+def deleteUser(id):
   s = get_db_session()
-  ciudad = s.query(Ciudad)
-  return Response(json.dumps([u.to_dict() for u in ciudad]), status=200, mimetype='application/json')
+  user = s.query(User).filter(User.estado==True).filter(User.id==id).one_or_none()
+  if user != None:
+    s.query(User).filter(User.estado==True).filter(User.id==id).update({User.estado: False})    
+    s.commit()
+    return Response('Usuario eliminado de la base de datos', status=200)
+  return Response('Id inexistente en la base de datos', status=404)
 
+@user_api.route('/user/<int:id>', methods=['PATCH'])
+def editarUser(id):
+  editarUser = request.get_json()#.get('body')
+  username = editarUser['username']
+  firstname = editarUser['firstname']
+  lastname = editarUser['lastname']
+  estado = editarUser['estado']
+  s = get_db_session()
+  user = s.query(User).filter(User.estado==True).filter(User.id==id).one_or_none()
+  if user != None:
+    if username != None:
+      s.query(User).filter(User.estado==True).filter(User.id==id).update({User.username: username})
+    if firstname != None:
+      s.query(User).filter(User.estado==True).filter(User.id==id).update({User.firstname: firstname})
+    if lastname != None:
+      s.query(User).filter(User.estado==True).filter(User.id==id).update({User.lastname: lastname})
+    if estado != None:
+      s.query(User).filter(User.estado==True).filter(User.id==id).update({User.estado: estado})
+    s.commit()
+    userUpdate = s.query(User).filter(User.estado==True).filter(User.id==id).one_or_none()
+    return Response(json.dumps(userUpdate.to_dict()), status=201, mimetype='application/json')
+  return Response('Id inexistente en la base de datos', status=404)
 
