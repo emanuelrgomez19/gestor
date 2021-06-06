@@ -35,7 +35,7 @@ def getListaProyectos():
 
 @proyecto_api.route('/proyectos', methods=['POST'])
 def nuevoProyecto():
-  nuevoProyecto = request.get_json()#.get('body')
+  nuevoProyecto = request.get_json().get('body')
   nombre = nuevoProyecto['nombre']
   estado = nuevoProyecto['estado']
   descripcion = nuevoProyecto['descripcion']

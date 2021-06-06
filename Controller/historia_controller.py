@@ -35,14 +35,15 @@ def getListaHistoria():
 
 @historia_api.route('/historias', methods=['POST'])
 def nuevoHistoria():
-  nuevoHistoria = request.get_json()#.get('body')
+  nuevoHistoria = request.get_json().get('body')
   titulo = nuevoHistoria['titulo']
   criterio_aceptacion = nuevoHistoria['criterio_aceptacion']
   como = nuevoHistoria['como']
+  quiero = nuevoHistoria['quiero']
   para = nuevoHistoria['para']
   id_proyecto = nuevoHistoria['id_proyecto']
   estado = nuevoHistoria['estado']
-  historia = Historia(titulo=titulo, criterio_aceptacion=criterio_aceptacion, como=como, para=para, id_proyecto=id_proyecto, estado=estado)
+  historia = Historia(titulo=titulo, criterio_aceptacion=criterio_aceptacion, como=como,quiero=quiero, para=para, id_proyecto=id_proyecto, estado=estado)
   s = get_db_session()
   s.add(historia)
   s.commit()
@@ -83,3 +84,10 @@ def editarHistorias(id):
     historiaUpdate = s.query(Historia).filter(Historia.estado==True).filter(Historia.id==id).one_or_none()
     return Response(json.dumps(historiaUpdate.to_dict()), status=201, mimetype='application/json')
   return Response('Id inexistente en la base de datos', status=404)
+
+@historia_api.route('/historias_proyecto/<int:id>',methods=['GET'])
+def getListaHistoria_proyecto(id):
+  s = get_db_session()
+  historia = s.query(Historia).filter(Historia.estado==True).filter(Historia.id_proyecto==id)
+  historiajson=json.dumps([u.to_dict() for u in historia])
+  return Response(historiajson, status=200, mimetype='application/json')
