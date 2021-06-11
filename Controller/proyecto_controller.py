@@ -58,7 +58,7 @@ def deleteProyecto(id):
 @proyecto_api.route('/proyectos/<int:id>', methods=['PATCH'])
 def editarProyecto(id):
   editaProyecto = request.get_json()#.get('body')
-  nombre = editaProyecto['nombre']
+  nombre = editaProyecto.get('nombre','Pedro')#valor predeterminado
   estado = editaProyecto['estado']
   descripcion = editaProyecto['descripcion']
   s = get_db_session()
