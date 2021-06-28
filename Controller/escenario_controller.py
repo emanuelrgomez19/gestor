@@ -1,3 +1,4 @@
+from re import escape
 from flask import Blueprint, Flask, request, json, Response, jsonify
 from webargs.core import Request
 from Model.escenario_model import Escenario
@@ -23,6 +24,7 @@ create_escenario_request = {
 def getEscenario(id):
   s = get_db_session()
   escenario = s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id==id).one_or_none()
+  print(escenario)
   if escenario != None:
     return Response(json.dumps(escenario.to_dict()), status=200, mimetype='application/json')
   return Response('Id inexistente en la base de datos', status=404)
@@ -30,24 +32,23 @@ def getEscenario(id):
 @escenario_api.route('/escenarios',methods=['GET'])
 def getListaEscenario():
   s = get_db_session()
-  escenario = s.query(Escenario).filter(Escenario.estado==True)
+  escenario = s.query(Escenario).filter(Escenario.estado==True).order_by(Escenario.id.desc())
   escenariojson=json.dumps([u.to_dict() for u in escenario])
   return Response(escenariojson, status=200, mimetype='application/json')
 
 @escenario_api.route('/escenarios', methods=['POST'])
 def nuevoEscenario():
-  nuevoEscenario = request.get_json()#.get('body')
-  descripcion = nuevoEscenario['descripcion']
-  objetivo = nuevoEscenario['objetivo']
-  pre_condicion = nuevoEscenario['pre_condicion']
-  pos_condicion = nuevoEscenario['pos_condicion']
-  id_historia = nuevoEscenario['id_historia']
-  estado = nuevoEscenario['estado']
-  escenario = Escenario(descripcion=descripcion ,objetivo=objetivo , pre_condicion=pre_condicion ,pos_condicion=pos_condicion, id_historia=id_historia, estado=estado)  
-  s = get_db_session()
-  s.add(escenario)
-  s.commit()
-  return Response(json.dumps(escenario.to_dict()), status=201, mimetype='application/json')
+  nuevoEscenario = request.get_json().get('body')
+  print(nuevoEscenario)
+  escenario = Escenario(descripcion=nuevoEscenario.get('descripcion') ,objetivo=nuevoEscenario.get('objetivo') , pre_condicion=nuevoEscenario.get('pre_condicion') ,pos_condicion=nuevoEscenario.get('pos_condicion'), id_historia=nuevoEscenario.get('id_historia'), estado=True)
+  if escenario.descripcion and escenario.descripcion != None and escenario.objetivo and escenario.objetivo != None and escenario.pre_condicion and escenario.pre_condicion != None and escenario.pos_condicion and escenario.pos_condicion != None and escenario.id_historia and escenario.id_historia != None:
+    s = get_db_session()
+    s.add(escenario)
+    s.commit()
+    escenario = s.query(Escenario).filter(Escenario.id_historia==escenario.id_historia).filter(Escenario.estado==True).order_by(Escenario.id.desc())
+    escenariojson=json.dumps([u.to_dict() for u in escenario])
+    return Response(escenariojson, status=201, mimetype='application/json')
+  return Response("Campos incompletos para crear una historia", status=400)
 
 @escenario_api.route('/escenarios/<int:id>', methods=['DELETE'])
 def deleteEscenario(id):
@@ -61,26 +62,33 @@ def deleteEscenario(id):
 
 @escenario_api.route('/escenarios/<int:id>', methods=['PATCH'])
 def editarEscenario(id):
-  editarEscenario = request.get_json()#.get('body')
-  descripcion = editarEscenario['descripcion']
-  objetivo = editarEscenario['objetivo']
-  pre_condicion = editarEscenario['pre_condicion']
-  pos_condicion = editarEscenario['pos_condicion']
-  id_historia = editarEscenario['id_historia']
+  editarEscenario = request.get_json().get('body')
   s = get_db_session()
   escenario = s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id==id).one_or_none()
   if escenario != None:
-    if descripcion != None:
-      s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id==id).update({Escenario.descripcion: descripcion})
-    if objetivo != None:
-      s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id==id).update({Escenario.objetivo: objetivo})
-    if pre_condicion != None:
-      s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id==id).update({Escenario.pre_condicion: pre_condicion})
-    if pos_condicion != None:
-      s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id==id).update({Escenario.pos_condicion: pos_condicion})
-    if id_historia != None:
-      s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id==id).update({Escenario.id_historia: id_historia})
-    s.commit()
-    escenarioUpdate = s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id==id).one_or_none()
-    return Response(json.dumps(escenarioUpdate.to_dict()), status=201, mimetype='application/json')
+    if editarEscenario.get('descripcion') and editarEscenario.get('descripcion') != None:
+      escenario.descripcion = editarEscenario.get('descripcion')
+    if editarEscenario.get('objetivo') and editarEscenario.get('objetivo') != None:
+      escenario.objetivo = editarEscenario.get('objetivo')
+    if editarEscenario.get('pre_condicion') and editarEscenario.get('pre_condicion') != None:
+      escenario.pre_condicion = editarEscenario.get('pre_condicion')
+    if editarEscenario.get('pos_condicion') and editarEscenario.get('pos_condicion') != None:
+      escenario.pos_condicion = editarEscenario.get('pos_condicion')
+    if editarEscenario.get('id_historia') and editarEscenario.get('id_historia') != None:
+      escenario.id_historia = editarEscenario.get('id_historia')
+    if escenario.descripcion == editarEscenario.get('descripcion') or escenario.objetivo == editarEscenario.get('objetivo') or escenario.pre_condicion == editarEscenario.get('pre_condicion') or escenario.pos_condicion == editarEscenario.get('pos_condicion') or escenario.id_historia == editarEscenario.get('id_historia'):
+      s.query(Escenario).filter(Escenario.id==id).update({Escenario.descripcion: escenario.descripcion, Escenario.objetivo: escenario.objetivo, Escenario.pre_condicion: escenario.pre_condicion, Escenario.pos_condicion: escenario.pos_condicion, Escenario.id_historia: escenario.id_historia})
+      s.commit()
+      escenario = s.query(Escenario).filter(Escenario.id_historia==escenario.id_historia).filter(Escenario.estado==True).order_by(Escenario.id.desc())
+      escenariojson=json.dumps([u.to_dict() for u in escenario])
+      return Response(escenariojson, status=201, mimetype='application/json')
+    else:
+      return Response('Datos del escenario vacios', status=400) 
   return Response('Id inexistente en la base de datos', status=404)
+
+@escenario_api.route('/escenariohistoria/<int:id>',methods=['GET'])
+def getListaEscenario_historia(id):
+  s = get_db_session()
+  escenario = s.query(Escenario).filter(Escenario.estado==True).filter(Escenario.id_historia==id)
+  historiajson=json.dumps([u.to_dict() for u in escenario])
+  return Response(historiajson, status=200, mimetype='application/json')

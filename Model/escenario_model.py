@@ -8,8 +8,8 @@ from Utils.utils import ToDict
 class Escenario(Base,ToDict):
  __tablename__ = 'ESCENARIO_HISTORIA'
  id = Column(Integer, primary_key=True)
- descripcion = Column(String(1000))
  objetivo = Column(String(1000))
+ descripcion = Column(String(1000))
  pre_condicion = Column(String(1000))
  pos_condicion = Column(String(1000))
  id_historia = Column(Integer)
@@ -18,7 +18,8 @@ class Escenario(Base,ToDict):
  #id_paso = Column(Integer,ForeignKey('paso.id'))
 
 
-def __init__(self, como ,quiero,para):
- self.como = como
- self.quiero = quiero
- self.para = para 
+def __init__(self,objetivo,descripcion,pre_condicion,pos_condicion):
+ self.objetivo = objetivo
+ self.descripcion = descripcion
+ self.pre_condicion = pre_condicion 
+ self.pos_condicion = pos_condicion

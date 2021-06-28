@@ -29,25 +29,22 @@ def getHistoria(id):
 @historia_api.route('/historias',methods=['GET'])
 def getListaHistoria():
   s = get_db_session()
-  historia = s.query(Historia).filter(Historia.estado==True)
+  historia = s.query(Historia).filter(Historia.estado==True).order_by(Historia.id.desc())
   historiajson=json.dumps([u.to_dict() for u in historia])
   return Response(historiajson, status=200, mimetype='application/json')
 
 @historia_api.route('/historias', methods=['POST'])
 def nuevoHistoria():
   nuevoHistoria = request.get_json().get('body')
-  titulo = nuevoHistoria['titulo']
-  criterio_aceptacion = nuevoHistoria['criterio_aceptacion']
-  como = nuevoHistoria['como']
-  quiero = nuevoHistoria['quiero']
-  para = nuevoHistoria['para']
-  id_proyecto = nuevoHistoria['id_proyecto']
-  estado = nuevoHistoria['estado']
-  historia = Historia(titulo=titulo, criterio_aceptacion=criterio_aceptacion, como=como,quiero=quiero, para=para, id_proyecto=id_proyecto, estado=estado)
-  s = get_db_session()
-  s.add(historia)
-  s.commit()
-  return Response(json.dumps(historia.to_dict()), status=201, mimetype='application/json')
+  historia = Historia(titulo=nuevoHistoria.get('titulo'), criterio_aceptacion=nuevoHistoria.get('criterio_aceptacion'), como=nuevoHistoria.get('como'), para=nuevoHistoria.get('para'), id_proyecto=nuevoHistoria.get('id_proyecto'), estado=True)
+  if historia.titulo and historia.titulo != None and historia.criterio_aceptacion and historia.criterio_aceptacion != None and historia.como and historia.como != None and historia.para and historia.para != None and historia.id_proyecto and historia.id_proyecto != None:
+    s = get_db_session()
+    s.add(historia)
+    s.commit()  
+    historia = s.query(Historia).filter(Historia.estado==True).filter(Historia.id_proyecto==historia.id_proyecto).order_by(Historia.id.desc())
+    historiajson=json.dumps([u.to_dict() for u in historia])
+    return Response(historiajson, status=201, mimetype='application/json')
+  return Response("Campos incompletos para crear una historia", status=400)
 
 @historia_api.route('/historias/<int:id>', methods=['DELETE'])
 def deleteHistoria(id):
@@ -62,30 +59,30 @@ def deleteHistoria(id):
 @historia_api.route('/historias/<int:id>', methods=['PATCH'])
 def editarHistorias(id):
   editarHistorias = request.get_json()#.get('body')
-  titulo = editarHistorias['titulo']
-  criterio_aceptacion = editarHistorias['criterio_aceptacion']
-  como = editarHistorias['como']
-  para = editarHistorias['para']
-  id_proyecto = editarHistorias['id_proyecto']
   s = get_db_session()
   historia = s.query(Historia).filter(Historia.estado==True).filter(Historia.id==id).one_or_none()
   if historia != None:
-    if titulo != None:
-      s.query(Historia).filter(Historia.estado==True).filter(Historia.id==id).update({Historia.titulo: titulo})
-    if criterio_aceptacion != None:
-      s.query(Historia).filter(Historia.estado==True).filter(Historia.id==id).update({Historia.criterio_aceptacion: criterio_aceptacion})
-    if como != None:
-      s.query(Historia).filter(Historia.estado==True).filter(Historia.id==id).update({Historia.como: como})
-    if para != None:
-      s.query(Historia).filter(Historia.estado==True).filter(Historia.id==id).update({Historia.para: para})
-    if id_proyecto != None:
-      s.query(Historia).filter(Historia.estado==True).filter(Historia.id==id).update({Historia.id_proyecto: id_proyecto})
-    s.commit()
-    historiaUpdate = s.query(Historia).filter(Historia.estado==True).filter(Historia.id==id).one_or_none()
-    return Response(json.dumps(historiaUpdate.to_dict()), status=201, mimetype='application/json')
+    if editarHistorias.get('titulo') and editarHistorias.get('titulo') != None:
+      historia.titulo = editarHistorias.get('titulo')
+    if editarHistorias.get('criterio_aceptacion') and editarHistorias.get('criterio_aceptacion') != None:
+      historia.criterio_aceptacion = editarHistorias.get('criterio_aceptacion')
+    if editarHistorias.get('como') and editarHistorias.get('como') != None:
+      historia.como = editarHistorias.get('como')
+    if editarHistorias.get('para') and editarHistorias.get('para') != None:
+      historia.para = editarHistorias.get('para')
+    if editarHistorias.get('id_proyecto') and editarHistorias.get('id_proyecto') != None:
+      historia.id_proyecto = editarHistorias.get('id_proyecto')
+    if historia.titulo == editarHistorias.get('titulo') or historia.criterio_aceptacion == editarHistorias.get('criterio_aceptacion') or historia.como == editarHistorias.get('como') or historia.para == editarHistorias.get('para') or historia.id_proyecto == editarHistorias.get('id_proyecto'):
+      s.query(Historia).filter(Historia.id==id).update({Historia.titulo: historia.titulo, Historia.criterio_aceptacion: historia.criterio_aceptacion, Historia.como: historia.como, Historia.para: historia.para, Historia.id_proyecto: historia.id_proyecto})
+      s.commit()
+      historia = s.query(Historia).filter(Historia.estado==True).filter(Historia.id_proyecto==historia.id_proyecto).order_by(Historia.id.desc())
+      historiajson=json.dumps([u.to_dict() for u in historia])
+      return Response(historiajson, status=201, mimetype='application/json')
+    else:
+      return Response('Datos necesarios de la historia vacios', status=400) 
   return Response('Id inexistente en la base de datos', status=404)
 
-@historia_api.route('/historias_proyecto/<int:id>',methods=['GET'])
+@historia_api.route('/historiasproyecto/<int:id>',methods=['GET'])
 def getListaHistoria_proyecto(id):
   s = get_db_session()
   historia = s.query(Historia).filter(Historia.estado==True).filter(Historia.id_proyecto==id)
